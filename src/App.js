@@ -1,25 +1,58 @@
-import logo from './logo.svg';
-import './App.css';
+import {
+  ApolloClient,
+  InMemoryCache,
+  ApolloProvider,
+  split,
+  HttpLink,
+} from "@apollo/client";
+import { getMainDefinition } from "@apollo/client/utilities";
+import { WebSocketLink } from "@apollo/client/link/ws";
+import { SubscriptionClient } from "subscriptions-transport-ws";
+import NewBookNotification from "./components/NewBookNotification";
+import AllBooksQuery from "./components/AllBooksQuery";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+//defines websocket link
+const wsLink = new WebSocketLink(
+  new SubscriptionClient("ws://localhost:4000/graphql", {
+    reconnect: true,
+  })
+);
+
+//defines http link
+const httpLink = new HttpLink({
+  uri: "http://localhost:4000/graphql",
+});
+
+// split requests based on operation type
+const splitLink = split(
+  ({ query }) => {
+    const definition = getMainDefinition(query);
+    return (
+      definition.kind === "OperationDefinition" &&
+      definition.operation === "subscription"
+    );
+  },
+  wsLink,
+  httpLink
+);
+
+//defines client
+const client = new ApolloClient({
+  link: splitLink,
+  cache: new InMemoryCache(),
+});
+
+//generic welcome message
+function Welcome() {
+  return <h1>New Book Subscriptions!</h1>;
 }
+
+const App = () => (
+  <ApolloProvider client={client}>
+    <Welcome />
+    <AllBooksQuery />
+    <NewBookNotification />
+  </ApolloProvider>
+);
 
 export default App;
