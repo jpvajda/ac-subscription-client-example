@@ -37,7 +37,7 @@ const NewBookNotification = () => {
         ID: <strong> {!loading && data.newBook.id} </strong>
       </p>
       <p>
-        AVAILABLE: <strong> {!loading && data.newBook.available} </strong>
+        AVAILABLE: <strong> {!loading && `${data.newBook.available}`} </strong>
       </p>
     </div>
   );

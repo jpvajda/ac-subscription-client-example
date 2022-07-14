@@ -6,15 +6,15 @@ import {
   HttpLink,
 } from "@apollo/client";
 import { getMainDefinition } from "@apollo/client/utilities";
-import { WebSocketLink } from "@apollo/client/link/ws";
-import { SubscriptionClient } from "subscriptions-transport-ws";
+import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
+import { createClient } from "graphql-ws";
 import NewBookNotification from "./components/NewBookNotification";
 import AllBooksQuery from "./components/AllBooksQuery";
 
 //defines websocket link
-const wsLink = new WebSocketLink(
-  new SubscriptionClient("ws://localhost:4000/graphql", {
-    reconnect: true,
+const wsLink = new GraphQLWsLink(
+  createClient({
+    url: "ws://localhost:4000/graphql",
   })
 );
 

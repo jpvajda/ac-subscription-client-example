@@ -1,5 +1,5 @@
 import { gql, useQuery } from "@apollo/client";
-import React from "react";
+import React, { useState, useMemo } from "react";
 
 const GET_BOOKS = gql`
   query Query {
@@ -12,22 +12,38 @@ const GET_BOOKS = gql`
   }
 `;
 
-function AllBooksQuery({ onBookSelected }) {
+function AllBooksQuery() {
   const { loading, error, data } = useQuery(GET_BOOKS);
+  const [info, setInfo] = useState(null);
+  const selectedBook = useMemo(
+    () => data?.books?.find((book) => book.id === info),
+    [data?.books, info]
+  );
+
+  console.log(info, selectedBook);
 
   if (loading) return "Loading Book Selector...";
   if (error) return `Error! ${error.message}`;
 
   return (
     <div>
-      <select name="book" onChange={() => onBookSelected}>
+      <select
+        name="book"
+        onChange={(e) => {
+          setInfo(e.target.value);
+          console.log(e.target.value);
+        }}
+      >
         {data.books.map((book) => (
-          <option key={book.id} value={book.title}>
+          <option key={book.id} value={book.id}>
             {book.title}
           </option>
         ))}
       </select>
-      <p>@todo return book data here</p>
+      <p>{selectedBook?.title}</p>
+      <p>{selectedBook?.id}</p>
+      <p>{selectedBook?.author}</p>
+      <p>{`${selectedBook?.available}`}</p>
     </div>
   );
 }
