@@ -15,7 +15,6 @@ const SUBSCRIBE_BOOK_ADDED = gql`
 const NewBookNotification = () => {
   const { data, error, loading } = useSubscription(SUBSCRIBE_BOOK_ADDED);
 
-  // TODO get subscription update to render
   if (loading) {
     return <div>Loading Subscription Data...</div>;
   }
